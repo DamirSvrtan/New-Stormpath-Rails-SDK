@@ -1,6 +1,7 @@
 require "active_support/core_ext/class/attribute_accessors"
 require "generator_spec/test_case"
 require "generators/stormpath/rails/migration/migration_generator"
+require 'pry-debugger'
 
 describe Stormpath::Rails::Generators::MigrationGenerator do
   include GeneratorSpec::TestCase
@@ -8,7 +9,7 @@ describe Stormpath::Rails::Generators::MigrationGenerator do
   arguments %w(person)
 
   before do
-    Time.stub_chain(:now, :utc, :strftime).and_return("0")
+    Stormpath::Rails::Generators::MigrationGenerator.any_instance.stub(:migration_time).and_return("0")
     prepare_destination
     run_generator
   end

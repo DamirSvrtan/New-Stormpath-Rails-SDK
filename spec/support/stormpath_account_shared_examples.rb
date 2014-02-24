@@ -2,9 +2,9 @@ require "logger"
 
 shared_examples "stormpath account" do
   let(:mock_account) do
-    mock("account", href: "account_href").tap do |account|
+    double("account", href: "account_href").tap do |account|
       subject.class::STORMPATH_FIELDS.each do |field_name|
-        account.stub!("#{field_name}").and_return(field_name.to_s)
+        account.stub("#{field_name}").and_return(field_name.to_s)
       end
     end
   end
@@ -17,7 +17,7 @@ shared_examples "stormpath account" do
 
     describe '.authenticate' do
       before do
-        Stormpath::Rails::Client.stub!(:authenticate_account).and_return(mock_account)
+        Stormpath::Rails::Client.stub(:authenticate_account).and_return(mock_account)
         subject.class.stub_chain(:where, :first).and_return(mock_user)
       end
 
@@ -29,7 +29,7 @@ shared_examples "stormpath account" do
 
     describe '.send_password_reset_email' do
       before do
-        Stormpath::Rails::Client.stub!(:send_password_reset_email).and_return(mock_account)
+        Stormpath::Rails::Client.stub(:send_password_reset_email).and_return(mock_account)
         subject.class.stub_chain(:where, :first).and_return(mock_user)
       end
 
@@ -43,7 +43,7 @@ shared_examples "stormpath account" do
       let(:token) { 'ASDF1324' }
 
       before do
-        Stormpath::Rails::Client.stub!(:verify_password_reset_token).and_return(mock_account)
+        Stormpath::Rails::Client.stub(:verify_password_reset_token).and_return(mock_account)
         subject.class.stub_chain(:where, :first).and_return(mock_user)
       end
 
@@ -57,7 +57,7 @@ shared_examples "stormpath account" do
       let(:token) { 'ASDF1324' }
 
       before do
-        Stormpath::Rails::Client.stub!(:verify_account_email).and_return(mock_account)
+        Stormpath::Rails::Client.stub(:verify_account_email).and_return(mock_account)
         subject.class.stub_chain(:where, :first).and_return(mock_user)
       end
 
@@ -69,7 +69,7 @@ shared_examples "stormpath account" do
   end
 
   before(:each) do
-    Stormpath::Rails::Client.stub!(:find_account).and_return(mock_account)
+    Stormpath::Rails::Client.stub(:find_account).and_return(mock_account)
     Stormpath::Rails.logger = Logger.new(STDERR)
   end
 
@@ -85,7 +85,7 @@ shared_examples "stormpath account" do
       let(:reloaded_subject) { subject.class.all.first }
 
       before(:each) do
-        Stormpath::Rails::Client.stub!(:create_account!).and_return(mock_account)
+        Stormpath::Rails::Client.stub(:create_account!).and_return(mock_account)
         subject.save!
       end
 
@@ -100,7 +100,7 @@ shared_examples "stormpath account" do
     let(:reloaded_subject) { subject.class.all.first }
 
     before(:each) do
-      Stormpath::Rails::Client.stub!(:create_account!).and_return(mock_account)
+      Stormpath::Rails::Client.stub(:create_account!).and_return(mock_account)
       subject.save!
     end
 
@@ -113,7 +113,7 @@ shared_examples "stormpath account" do
           end
 
           it "logs a warning to standard output" do
-            Stormpath::Rails::Client.stub!(:find_account).and_raise(Stormpath::Error.new(mock("error", message: "Find failed")))
+            Stormpath::Rails::Client.stub(:find_account).and_raise(Stormpath::Error.new(double("error", message: "Find failed")))
             Stormpath::Rails.logger.should_receive(:warn).with("Error loading Stormpath account (Find failed)")
             reloaded_subject.send(field_name).should be_nil
           end
@@ -143,7 +143,7 @@ shared_examples "stormpath account" do
       subject.given_name = 'Foo'
       subject.surname = 'Bar'
 
-      Stormpath::Rails::Client.stub!(:create_account!).and_return mock_account
+      Stormpath::Rails::Client.stub(:create_account!).and_return mock_account
     end
 
     it "should create account at stormpath and assign stormpath_url" do
@@ -158,7 +158,7 @@ shared_examples "stormpath account" do
     end
 
     it "should add error if stormpath account creation failed" do
-      Stormpath::Rails::Client.stub!(:create_account!).and_raise(Stormpath::Error.new(mock("error", message: "Create failed")))
+      Stormpath::Rails::Client.stub(:create_account!).and_raise(Stormpath::Error.new(double("error", message: "Create failed")))
       subject.save
       subject.errors[:base].should == ["Create failed"]
     end
@@ -166,7 +166,7 @@ shared_examples "stormpath account" do
 
   context "before update" do
     before(:each) do
-      Stormpath::Rails::Client.stub!(:create_account!).and_return(mock_account)
+      Stormpath::Rails::Client.stub(:create_account!).and_return(mock_account)
       subject.save!
     end
 
@@ -181,7 +181,7 @@ shared_examples "stormpath account" do
     end
 
     it "should add error if stormpath account update failed" do
-      subject.stormpath_account.stub!(:save).and_raise(Stormpath::Error.new(mock("error", message: "Update failed")))
+      subject.stormpath_account.stub(:save).and_raise(Stormpath::Error.new(double("error", message: "Update failed")))
       subject.save.should be_false
       subject.errors[:base].should == ["Update failed"]
     end
@@ -189,7 +189,7 @@ shared_examples "stormpath account" do
 
   context "after destroy" do
     before(:each) do
-      Stormpath::Rails::Client.stub!(:create_account!).and_return(mock_account)
+      Stormpath::Rails::Client.stub(:create_account!).and_return(mock_account)
       subject.save!
     end
 
@@ -204,7 +204,7 @@ shared_examples "stormpath account" do
     end
 
     it "should log warning if stormpath account update failed" do
-      subject.stormpath_account.stub!(:delete).and_raise(Stormpath::Error.new(mock("error", message: "Delete failed")))
+      subject.stormpath_account.stub(:delete).and_raise(Stormpath::Error.new(double("error", message: "Delete failed")))
       Stormpath::Rails.logger.should_receive(:warn).with("Error destroying Stormpath account (Delete failed)")
       subject.destroy.should be_true
     end

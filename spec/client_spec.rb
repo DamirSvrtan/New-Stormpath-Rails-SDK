@@ -1,5 +1,5 @@
 require "spec_helper"
-
+require 'pry-debugger'
 describe Stormpath::Rails::Client, :vcr do
 
   describe ".client" do

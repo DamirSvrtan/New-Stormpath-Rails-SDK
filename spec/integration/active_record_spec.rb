@@ -13,7 +13,6 @@ describe "ActiveRecord record" do
     ActiveRecord::Base.establish_connection :adapter => 'sqlite3', :database => ':memory:'
     ActiveRecord::Migration.verbose = false
     ActiveRecord::Migration.create_table :ar_entities do |t|
-      t.string :id
       t.string :stormpath_url
     end
   end

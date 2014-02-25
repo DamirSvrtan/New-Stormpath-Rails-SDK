@@ -6,12 +6,19 @@ module Stormpath
     module Account
       extend ActiveSupport::Concern
 
-      STORMPATH_FIELDS = [ :email, :password, :username, :given_name, :middle_name, :surname, :status ]
+      STORMPATH_FIELDS = [ :email, :password, :username, :given_name, :middle_name, :surname, :status, :full_name ]
 
       module ClassMethods
+
         def authenticate username, password
           account = Stormpath::Rails::Client.authenticate_account username, password
           self.where(stormpath_url: account.href).first
+        # rescue Stormpath::Error => error
+        #   if error.code == 400
+        #     nil
+        #   else
+        #     raise error
+        #   end
         end
 
         def send_password_reset_email email
@@ -25,7 +32,7 @@ module Stormpath
         end
 
         def verify_account_email token
-          account = Stormpath::Rails::Client.verify_account_email token
+          account = Stwormpath::Rails::Client.verify_account_email token
           self.where(stormpath_url: account.href).first
         end
       end
@@ -38,7 +45,7 @@ module Stormpath
         field(:stormpath_url, type: String) if self.respond_to?(:field)
         index({ stormpath_url: 1 }, { unique: true }) if self.respond_to?(:index)
 
-        attr_accessor(*STORMPATH_FIELDS)
+        # attr_accessor(*STORMPATH_FIELDS)
         # attr_accessible(*STORMPATH_FIELDS)
 
         before_create :create_account_on_stormpath
@@ -69,7 +76,7 @@ module Stormpath
           end
         end
 
-        STORMPATH_FIELDS.each do |name|
+        (STORMPATH_FIELDS - [:full_name]).each do |name|
           define_method("#{name}=") do |val|
             if stormpath_account.present?
               stormpath_account.send("#{name}=", val)
@@ -85,6 +92,7 @@ module Stormpath
             stormpath_pre_create_attrs.clear
             self.stormpath_url = @stormpath_account.href
           rescue Stormpath::Error => error
+            binding.pry
             self.errors[:base] << error.to_s
             false
           end
@@ -114,7 +122,9 @@ module Stormpath
             true
           end
         end
+
       end
+
     end
   end
 end

@@ -14,7 +14,7 @@ describe Stormpath::Rails::Generators::MigrationGenerator do
     run_generator
   end
 
-  it "creates configuration file" do
+  it "creates migration file" do
     assert_file "db/migrate/0_add_stormpath_url_to_people.rb", "class AddStormpathUrlToPeople < ActiveRecord::Migration\n  def up\n    add_column :people, :stormpath_url, :string\n    add_index :people, :stormpath_url\n  end\n\n  def down\n    remove_column :people, :stormpath_url\n  end\nend"
   end
 end

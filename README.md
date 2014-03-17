@@ -85,6 +85,7 @@ The bulk of this guide assumes that you are creating a new Rails application fro
       ```
       rails g stormpath:rails:migration user
       rake db:migrate
+      rails g stormpath:rails:config
       ```
 
 4. Update your "user" model file (e.g., user.rb) under app/models/ as follows:
